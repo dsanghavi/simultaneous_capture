@@ -53,8 +53,8 @@ void PrintError( Error error )
 
 void capture_images(boost::barrier& cur_barier, Camera* c){
     Error error;
-    CameraInfo camInfo;
-    c->GetCameraInfo( &camInfo );
+    //CameraInfo camInfo;
+    //c->GetCameraInfo( &camInfo );
     //boost::lock_guard<boost::mutex> locker( );
     //PrintCameraInfo(&camInfo);
     int threadID = (int)getThreadId();
@@ -73,7 +73,7 @@ void capture_images(boost::barrier& cur_barier, Camera* c){
         }
         // We'll also print out a timestamp
         TimeStamp timestamp = rawImage.GetTimeStamp();
-        printf("Cam %d - Frame %d - TimeStamp [%d %d]\n",threadID,j,timestamp.cycleSeconds,timestamp.cycleCount);
+        printf("Cam %d - Frame %d - TimeStamp [%u %u]\n",threadID,j,timestamp.cycleSeconds,timestamp.cycleCount);
         vecImages[j].DeepCopy(&rawImage);
     }
     //Process and store the images captured
@@ -94,6 +94,8 @@ void capture_images(boost::barrier& cur_barier, Camera* c){
           return;
         }
     }
+    c->StopCapture();
+    c->Disconnect();
 }
 
 int main()
@@ -167,8 +169,6 @@ int main()
     getchar();
     for ( unsigned int i = 0; i < numCameras; i++ )
     {
-        pcam[i]->StopCapture();
-        pcam[i]->Disconnect();
         delete pcam[i];
     }
     printf( "Done! Press Enter to exit...\n" );
